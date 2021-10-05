@@ -22,7 +22,7 @@ const Conversation = require("./models/Conversation");
 
 const io  = new Server(server, {
   cors: {
-      origin: 'http://localhost:3000',
+      origin: ['http://localhost:3000',"https://chat-app-group14.herokuapp.com"],
       methods: ["get", "post", "delete"]
   }
 })
@@ -30,7 +30,7 @@ const io  = new Server(server, {
 dotenv.config();
 
 mongoose.connect(
-  'mongodb://localhost:27017/chatting',
+  'mongodb+srv://chatapp:thangthien26-01@chatapp.taojd.mongodb.net/chatting',
   { useNewUrlParser: true, useUnifiedTopology: true },
   () => {
     console.log("Connected to MongoDB");
@@ -45,7 +45,7 @@ app.use(morgan("common"));
 
 app.use(cors(
   {
-      origin: ["http://localhost:3000"],
+      origin: ["http://localhost:3000","https://chat-app-group14.herokuapp.com"],
       methods: ["GET", "POST","DELETE","PUT"],
       credentials: true,
     }
