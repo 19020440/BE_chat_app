@@ -58,6 +58,7 @@ module.exports  = new class AuthController {
             // } catch (err) {
             //   res.status(500).json(err);
             // }
+            console.log(req.query.userId);
             try{
               const result = await User.findById(req.query.userId).exec();
               !result && res.status(200).json({status: 0, content: "We can not find this user !"});
