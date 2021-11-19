@@ -47,7 +47,7 @@ module.exports  = new class AuthController {
         try {
             const findUser = await User.find({email: req.email}).exec();
             !findUser && res.status(500).json({content: "email is not exist !", status: 0});
-            const {password,...dataResponse} = findUser[0]._doc;
+            const {coverPicture,...dataResponse} = findUser[0]._doc;
             const updateStatus = await User.findOneAndUpdate({email: req.email}, {status: true});
             updateStatus &&  res.status(200).json({content: dataResponse, status: 1});
 

@@ -7,6 +7,7 @@ const Conversation = require('../models/Conversation')
 router.post("/", async (req, res) => {
   const newMessage = new Message(req.body);
   const {conversationId, ...lastText}= req.body;
+  console.log();
   try {
     const savedMessage = await newMessage.save();
     const result = await Conversation.findByIdAndUpdate({_id: conversationId}, {lastText});
@@ -28,5 +29,15 @@ router.get("/:conversationId", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+router.post("/delete", async(req, res) => {
+
+  try {
+    const mes = await Message.deleteMany();
+  } catch(err) {
+
+  }
+
+})
 
 module.exports = router;

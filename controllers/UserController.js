@@ -1,6 +1,8 @@
+const {getLessProfile} = require('../helper/funtion')
 const User = require("../models/User");
-
-module.exports  = new class AuthController {
+const bcrypt = require("bcrypt");
+const Conversation = require('../models/Conversation')
+module.exports  = new class UserController {
 
 
     //update User
@@ -58,7 +60,6 @@ module.exports  = new class AuthController {
             // } catch (err) {
             //   res.status(500).json(err);
             // }
-            console.log(req.query.userId);
             try{
               const result = await User.findById(req.query.userId).exec();
               !result && res.status(200).json({status: 0, content: "We can not find this user !"});
@@ -95,18 +96,53 @@ module.exports  = new class AuthController {
               try {
                 const user = await User.findById(req.params.id);
                 const currentUser = await User.findById(req.body.userId);
+                const member1 = {
+                  id: req.body.userId,
+                  profilePicture: currentUser.profilePicture,
+                  username: currentUser.username,
+                }
+
+                const member2 = {
+                  id: req.params.id,
+                  profilePicture: user.profilePicture,
+                  username: user.username,
+                }
+
+                const lastText1 = {
+                  id:req.body.userId,
+                  profilePicture: currentUser.profilePicture,
+                  seen: false,
+                }
+
+                const lastText2 = {
+                  id: req.params.id,
+                  profilePicture: user.profilePicture,
+                  seen: false,
+                }
+
+
+                const newConversation = new Conversation({
+                  members: [member1, member2],
+                  lastText: {
+                    sender: "",
+                    text: "",
+                    seens: [lastText1,lastText2]
+                  }
+                });
+
                 if (!user.followers.includes(req.body.userId)) {
-                  await user.updateOne({ $push: { followers: req.body.userId } });
-                  await currentUser.updateOne({ $push: { followings: req.params.id } });
-                  res.status(200).json("user has been followed");
+                 
+                  // await user.updateOne({ $push: { followings: req.body.userId } });
+                  Promise.all([await newConversation.save(), await user.updateOne({ $push: { followings: req.body.userId } }),  await currentUser.updateOne({ $push: { followings: req.params.id } })])
+                  res.status(200).json({content: "user has been followed", status: 1});
                 } else {
-                  res.status(403).json("you allready follow this user");
+                  res.status(403).json({content: "you allready follow this user", status: 0});
                 }
               } catch (err) {
-                res.status(500).json(err);
+                res.status(500).json({content: err, status: 0});
               }
             } else {
-              res.status(403).json("you cant follow yourself");
+              res.status(403).json({content: "you cant follow yourself", status: 0});
             }
           }
 //unfollow a user
@@ -119,23 +155,59 @@ module.exports  = new class AuthController {
                     if (user.followers.includes(req.body.userId)) {
                       await user.updateOne({ $pull: { followers: req.body.userId } });
                       await currentUser.updateOne({ $pull: { followings: req.params.id } });
-                      res.status(200).json("user has been unfollowed");
+                      res.status(200).json({status: 1,content: "user has been unfollowed"});
                     } else {
-                      res.status(403).json("you dont follow this user");
+                      res.status(403).json({content: "you dont follow this user", status: 0});
                     }
                   } catch (err) {
-                    res.status(500).json(err);
+                    res.status(500).json({content: err,status: 0});
                   }
                 } else {
-                  res.status(403).json("you cant unfollow yourself");
+                  res.status(403).json({content: "you cant unfollow yourself", status: 0});
                 }
 
           }
           //searchUser
           async searchUser(req, res, next) {
-          
-            const result =  await User.find( { 'username' : { '$regex' : req.body.word, '$options' : 'i' } } );
-            res.json({content: result, status: 1})
+            try {
+              const result =  await User.find( { 'username' : { '$regex' : req.body.word, '$options' : 'i' } } );
+              const rs = getLessProfile(result)
+              res.json({content: rs, status: 1})
+            } catch(err) {
+              res.json({content: err, status: 0});
+            }T
+            
           }
-   
+
+          //get List invite
+          async getListInvite(req, res, next) {
+            const {userId} = req.body;
+            try {
+              const [allUser, user] = await Promise.all([ User.find(),  User.findById(userId).exec()])
+              const result = allUser.filter(value => user.followings.includes(value._id.toString()) == 0 && userId != value._id.toString() );
+              res.status(200).json({content: result, status: 1})
+            } catch(err) {
+              res.json(err)
+            }
+          }
+            //Update Profile
+            async update_profile(req, res, next) {
+              const {userId, data} = req.body;
+              try {
+                const user = await User.findById(userId).exec();
+                
+                const validPassword = await bcrypt.compare(data.password, user.password);
+                !validPassword && res.status(200).json({content: "Mật khẩu sai !",status:0});
+                // res.status(200).json({content: user.password,status: 1})
+                const salt = await bcrypt.genSalt(10);
+               const hashedPassword = await bcrypt.hash(data.newpassword, salt);
+                const newPass = await User.findOneAndUpdate(userId, {password: hashedPassword});
+                if(data.username) User.findOneAndUpdate(userId, {username: data.username});
+                newPass && res.status(200).json({content: "Cập nhật thông tin thành công", status: 1})
+              } catch(err) {
+
+                res.status(500).json({content: err, status: 0})
+
+              }
+            }
 }

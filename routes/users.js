@@ -17,13 +17,16 @@ router.get("/friends/:userId", UserController.getFriends);
 
 //follow a user
 
-router.put("/:id/follow", UserController.followerUser);
+router.post("/:id/follow", UserController.followerUser);
 
 //unfollow a user
 
-router.put("/:id/unfollow", UserController.unFollowUser);
+router.post("/:id/unfollow", UserController.unFollowUser);
 
 //search user
 router.post('/search', UserController.searchUser)
-
+//
+router.post('/update/profile', UserController.update_profile)
+//get list invite
+router.post('/list/invite', UserController.getListInvite)
 module.exports = router;

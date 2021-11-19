@@ -3,11 +3,25 @@ const mongoose = require("mongoose");
 const ConversationSchema = new mongoose.Schema(
   {
     members: {
-      type: Array,
+      type: Object,
     },
     lastText: {
-      type: Object,
-      default: {},
+      text: String,
+      sender: String,
+      seens: [
+        {
+          id: String,
+          profilePicture: String,
+          seen: Boolean,
+        }
+      ]
+    },
+    name: {
+      type: String,
+      default: null,
+    },
+    covImage: {
+      type: String,
     }
   },
   { timestamps: true }

@@ -14,5 +14,7 @@ router.get("/:userId", ConversationController.getCovOfUser);
 router.get("/find/:firstUserId/:secondUserId", ConversationController.findCovByTwoId);
 //update
 router.post('/update', ConversationController.update)
+//
+router.post('/update/property', ConversationController.update_cov)
 
 module.exports = router;
