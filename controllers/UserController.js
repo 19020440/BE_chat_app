@@ -92,59 +92,81 @@ module.exports  = new class UserController {
     //follow user 
     async followerUser(req, res, next) {
 
-            if (req.body.userId !== req.params.id) {
-              try {
-                const user = await User.findById(req.params.id);
-                const currentUser = await User.findById(req.body.userId);
-                const member1 = {
-                  id: req.body.userId,
-                  profilePicture: currentUser.profilePicture,
-                  username: currentUser.username,
-                }
+      if (req.body.userId !== req.params.id) {
+        try {
+          // const user = await User.findById(req.params.id);
+          // const currentUser = await User.findById(req.body.userId);
+          // const conversation = await Conversation.findOne({
+          //   members: { $all: [{$elemMatch : {id: req.params.firstUserId}}, {$elemMatch :{'id': req.params.secondUserId}}] },
+          // });
 
-                const member2 = {
-                  id: req.params.id,
-                  profilePicture: user.profilePicture,
-                  username: user.username,
-                }
-
-                const lastText1 = {
-                  id:req.body.userId,
-                  profilePicture: currentUser.profilePicture,
-                  seen: false,
-                }
-
-                const lastText2 = {
-                  id: req.params.id,
-                  profilePicture: user.profilePicture,
-                  seen: false,
-                }
-
-
-                const newConversation = new Conversation({
-                  members: [member1, member2],
-                  lastText: {
-                    sender: "",
-                    text: "",
-                    seens: [lastText1,lastText2]
-                  }
-                });
-
-                if (!user.followers.includes(req.body.userId)) {
-                 
-                  // await user.updateOne({ $push: { followings: req.body.userId } });
-                  Promise.all([await newConversation.save(), await user.updateOne({ $push: { followings: req.body.userId } }),  await currentUser.updateOne({ $push: { followings: req.params.id } })])
-                  res.status(200).json({content: "user has been followed", status: 1});
-                } else {
-                  res.status(403).json({content: "you allready follow this user", status: 0});
-                }
-              } catch (err) {
-                res.status(500).json({content: err, status: 0});
-              }
-            } else {
-              res.status(403).json({content: "you cant follow yourself", status: 0});
+          const [user, currentUser, conv] = await Promise.all([ await User.findById(req.params.id),
+            await User.findById(req.body.userId),
+            Conversation.findOne({
+              members: { $all: [{$elemMatch : {id: req.params.firstUserId}}, {$elemMatch :{'id': req.params.secondUserId}}] },
+            })
+          ])
+          if(!conv) {
+            const member1 = {
+              id: req.body.userId,
+              profilePicture: currentUser.profilePicture,
+              username: currentUser.username,
             }
+
+            const member2 = {
+              id: req.params.id,
+              profilePicture: user.profilePicture,
+              username: user.username,
+            }
+
+            const lastText1 = {
+              id:req.body.userId,
+              profilePicture: currentUser.profilePicture,
+              seen: false,
+            }
+
+            const lastText2 = {
+              id: req.params.id,
+              profilePicture: user.profilePicture,
+              seen: false,
+            }
+
+
+            const newConversation = new Conversation({
+              members: [member1, member2],
+              lastText: {
+                sender: "",
+                text: "",
+                seens: [lastText1,lastText2]
+              }
+            });
+
+            if (!user.followers.includes(req.body.userId)) {
+           
+            // await user.updateOne({ $push: { followings: req.body.userId } });
+            Promise.all([await newConversation.save(), await user.updateOne({ $push: { followings: req.body.userId } }),  await currentUser.updateOne({ $push: { followings: req.params.id } })])
+            res.status(200).json({content: "user has been followed", status: 1});
+          } else {
+            res.status(403).json({content: "you allready follow this user", status: 0});
           }
+        } else {
+
+          if (!user.followers.includes(req.body.userId)) {
+           
+            // await user.updateOne({ $push: { followings: req.body.userId } });
+            Promise.all([await user.updateOne({ $push: { followings: req.body.userId } }),  await currentUser.updateOne({ $push: { followings: req.params.id } })])
+            res.status(200).json({content: "user has been followed", status: 1});
+          } else {
+            res.status(403).json({content: "you allready follow this user", status: 0});
+          }
+        }
+        } catch (err) {
+          res.status(500).json({content: err, status: 0});
+        }
+      } else {
+        res.status(403).json({content: "you cant follow yourself", status: 0});
+      }
+    }
 //unfollow a user
 
           async unFollowUser(req, res, next){
