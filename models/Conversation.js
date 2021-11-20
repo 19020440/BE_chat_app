@@ -24,7 +24,14 @@ const ConversationSchema = new mongoose.Schema(
       type: String,
     }
   },
-  { timestamps: true }
+  { timestamps: true },
+  {
+    writeConcern: {
+      j: true,
+      wtimeout: 1000
+    }
+  }
+  
 );
 
 module.exports = mongoose.model("Conversation", ConversationSchema);

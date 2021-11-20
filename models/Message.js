@@ -19,7 +19,13 @@ const MessageSchema = new mongoose.Schema(
       default: false, 
     }
   },
-  { timestamps: true }
+  { timestamps: true },
+  {
+    writeConcern: {
+      j: true,
+      wtimeout: 1000
+    }
+  }
 );
 
 module.exports = mongoose.model("Message", MessageSchema);
