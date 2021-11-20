@@ -26,7 +26,7 @@ const { promisify } = require('util')
 const unlinkAsync = promisify(fs.unlink)
 const io  = new Server(server, {
   cors: {
-      origin: '*',
+      origin: 'https://dbms-chat-app.herokuapp.com/',
       methods: ["get", "post", "delete"]
   }
 })
