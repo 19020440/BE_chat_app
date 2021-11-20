@@ -20,13 +20,13 @@ const User = require('./models/User');
 const Messenger = require('./models/Message');
 const Conversation = require("./models/Conversation");
 const fs = require('fs')
-
+const port = process.env.PORT || 8800
 const { promisify } = require('util')
 
 const unlinkAsync = promisify(fs.unlink)
 const io  = new Server(server, {
   cors: {
-      origin: 'http://localhost:3000',
+      origin: '*',
       methods: ["get", "post", "delete"]
   }
 })
@@ -280,6 +280,6 @@ io.on("connection", (socket) => {
 });
 
 
-server.listen(8800, () => {
+server.listen(port, () => {
   console.log("Backend server is running!");
 });
