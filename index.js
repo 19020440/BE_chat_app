@@ -34,7 +34,7 @@ const io  = new Server(server, {
 dotenv.config();
 
 mongoose.connect(
-  'mongodb://localhost:27017/chatting2',
+  'mongodb+srv://dbms24:dbms24@dbms.3vato.mongodb.net/myFirstDatabase?retryWrites=true&w=majority/chatting',
   { useNewUrlParser: true, useUnifiedTopology: true },
   () => {
     console.log("Connected to MongoDB");
