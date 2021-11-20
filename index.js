@@ -49,7 +49,7 @@ app.use(morgan("common"));
 
 app.use(cors(
   {
-      origin: ["http://localhost:3000"],
+      origin: ["https://dbms-chat-app.herokuapp.com/"],
       methods: ["GET", "POST","DELETE","PUT"],
       credentials: true,
     }
