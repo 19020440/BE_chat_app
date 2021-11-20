@@ -245,7 +245,16 @@ io.on("connection", (socket) => {
   socket.on("returning signal", payload => {
     socket.to(payload.roomID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
 });
+// gui loi moi ket ban 
 
+socket.on("invite_success", async (userId) => {
+  try {
+    const user = await User.findById(userId).exec();
+    user && socket.to(user.socketId).emit("invite_success", true);
+  } catch(err) {
+    socket.emit("send_error", "Kết bạn thành công nhưng có thể người dùng sẽ chưa thấy lời mời của bạn!")
+  }
+})
 
 
 
