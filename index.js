@@ -68,7 +68,7 @@ const upload = multer({ storage: storage });
 app.post("/api/upload", upload.single("file"), async (req, res) => {
   try {
     if(req.body.userId) {
-      const result = await User.findByIdAndUpdate(req.body.userId, {profilePicture: `http://localhost:8800/images/${req.body.name}`});
+      const result = await User.findByIdAndUpdate(req.body.userId, {profilePicture: `https://chat-app-group14.herokuapp.com/images/${req.body.name}`});
     }
     return res.status(200).json({content: req.body.name , status: 1});
   } catch (error) {
