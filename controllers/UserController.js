@@ -102,8 +102,8 @@ module.exports  = new class UserController {
 
           const [user, currentUser, conv] = await Promise.all([ await User.findById(req.params.id),
             await User.findById(req.body.userId),
-            Conversation.findOne({
-              members: { $all: [{$elemMatch : {id: req.params.firstUserId}}, {$elemMatch :{'id': req.params.secondUserId}}] },
+            await Conversation.findOne({
+              members: { $all: [{$elemMatch : {id: req.body.userId }}, {$elemMatch :{'id': req.params.id}}] },
             })
           ])
           if(!conv) {
