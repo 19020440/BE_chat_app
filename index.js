@@ -132,7 +132,7 @@ io.on("connection", (socket) => {
   })
 
   //invite_join_group
-  socket.on('invite_to_group', async ({name,members}) => {
+  socket.on('invite_to_group', async ({name,members, listUser, user}) => {
       try {
         const newConversation = new Conversation({
           name: name,
@@ -144,7 +144,11 @@ io.on("connection", (socket) => {
           }
         });
         newConversation.save();
-
+        listUser.forEach( (element) => {
+          User.findById(element).then(res => {
+            socket.to(res.socketId).emit("invite_to_group", {name, user})
+          })
+        });
        
       } catch(err) {
         console.log(err);
