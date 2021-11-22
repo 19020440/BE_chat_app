@@ -175,4 +175,18 @@ module.exports  = new class ConversationController {
       }
     }
 
+     //Leave Group
+     async leave_group(req, res, next) {
+      const {covId, userId} = req.body;
+      // res.json(covId)
+      try{
+        const leaveGroup = await Conversation.findByIdAndUpdate(covId, {$pull: {members: {id: userId}}} );
+        leaveGroup && res.status(200).json({content: "Rời nhóm thành công !", status: 1});
+        
+      }  catch(err) {
+        res.status(500).json({content: "Gặp lỗi về việc thoát nhóm !", status: 0});
+      }
+      
+    }
+
 }

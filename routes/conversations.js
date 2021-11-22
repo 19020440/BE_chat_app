@@ -16,5 +16,6 @@ router.get("/find/:firstUserId/:secondUserId", ConversationController.findCovByT
 router.post('/update', ConversationController.update)
 //
 router.post('/update/property', ConversationController.update_cov)
-
+//leaverGroup
+router.post('/leave-group', ConversationController.leave_group)
 module.exports = router;
