@@ -143,7 +143,9 @@ io.on("connection", (socket) => {
             seens: members
           }
         });
-        newConversation.save();
+        const result = await newConversation.save();
+        result && socket.emit("status_invite_to_group", true)
+        !result && socket.emit("status_invite_to_group", false)
         listUser.forEach( (element) => {
           User.findById(element).then(res => {
             socket.to(res.socketId).emit("invite_to_group", {name, user})
